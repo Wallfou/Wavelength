@@ -1,0 +1,108 @@
+.home-page {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: url("../../assets/Wavelength_background.jpg") no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.navbar {
+    background-color: #8e8e8e9d;
+    
+}
+
+.home-container {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding-top: 5rem;
+}
+
+.title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.title-text {
+    font-size: 6rem;
+    font-weight: bold;
+    color: #065722;
+    margin: 0;
+}
+
+.title-subtext {
+    background-color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #10662e;
+    margin-bottom: 0;
+}
+
+.title-paragraph {
+    width: 40%;
+    font-size: 1.125rem;
+    color: #10662e;
+    max-width: 48rem;
+    margin: 0 auto;
+    line-height: 1.75;
+}
+
+.convert-container {
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.convert-section {
+    margin: 20px 20px;
+    padding: 30px 0px;
+    width: 28vw;
+    height: 800px;
+    border: 4px solid transparent;
+    border-radius: 20px;
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: #8e8e8e9d;
+    transition: transform 0.3s;
+    box-shadow: 0 3px 8px #000000;
+}
+
+.convert-section h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.convert-section p {
+    width: 80%;
+    font-size: 18px;
+}
+
+.convert-section:hover {
+    transition: 0.3s;
+    transform: translateY(-5px);
+    border-color: transparent;
+    box-shadow: 0 6px 12px #000000;
+}
+
+.convert-section:active {
+    transform: translateY(-1px) scale(0.99);
+    border-color: white;
+    box-shadow: 0 3px 8px #000000;
+    background-color: rgba(202, 202, 202, 0.245);
+}
+
+.convert-section.is-selected {
+    transform: translateY(-3px);
+    border-color: black;
+    background-color: black;
+    box-shadow: 0 6px 12px #000000;
+}
