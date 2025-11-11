@@ -34,6 +34,7 @@ To-Do
 
 ### Project Structure
 
+```
 react-proj2/
 │
 ├── frontend/
@@ -186,3 +187,4 @@ react-proj2/
 ├── .gitignore
 ├── README.md
 └── docker-compose.yml
+```
