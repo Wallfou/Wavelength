@@ -1,15 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HomePage from './pages/Homepage/HomePage';
-import ConvertPage from './pages/ConvertPage/ConvertPage';
+import TextInputPage from './pages/ConvertPage/textInputPage';
 
 const Router = ({ children }) => {
-  const [currentPage, setCurrentPage] = useState('/');
-  const [pageData, setPageData] = useState({});
+  const [currentPage, setCurrentPage] = useState(window.location.pathname);
+  const [pageData, setPageData] = useState(() => {
+    const saved = sessionStorage.getItem('pageData');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   const navigate = (page, data = {}) => {
+    sessionStorage.setItem('pageData', JSON.stringify(data));
+    window.history.pushState({ pageData: data }, '', page);
     setCurrentPage(page);
     setPageData(data);
   };
+
+  useEffect(() => {
+    const handlePopState = (event) => {
+      setCurrentPage(window.location.pathname);
+      const data = event.state?.pageData || {};
+      setPageData(data);
+      sessionStorage.setItem('pageData', JSON.stringify(data));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <>
@@ -32,7 +48,7 @@ const Route = ({ isActive, element, navigate, pageData }) => {
 const App = () => (
   <Router>
     <Route path="/" element={<HomePage />} />
-    <Route path="convert" element={<ConvertPage />} />
+    <Route path="/text-input" element={<TextInputPage />} />
   </Router>
 );
 

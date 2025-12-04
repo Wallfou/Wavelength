@@ -1,0 +1,176 @@
+.text-input-page-container {
+    background-color: #f3f2ee;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    text-align: center;
+    color: black;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.title-section-container {
+    width: 80%;
+    margin: 0rem 10rem;
+    border-bottom: 2px solid black;
+}
+
+.text-input-left-container {
+    padding: 2rem 5rem;
+}
+.text-input-right-container {
+    padding: 2rem 5rem;
+}
+
+.text-input-text-area {
+    width: 100%;
+    min-height: 500px;
+    padding: 2rem;
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: #f3f2ee;
+    border: 2px solid black;
+    border-radius: 0px;
+    resize: vertical;
+    box-sizing: border-box;
+    color: black;
+}
+
+.text-input-text-area:focus {
+    outline: none;
+    border-color: #000;
+}
+
+.text-input-interaction-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.generated-songs-list {
+    width: 100%;
+    min-height: 500px;
+    border: 2px solid black;
+    background-color: #f3f2ee;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 2rem;
+}
+
+.empty-list-placeholder {
+    width: 100%;
+    min-height: 500px;
+    color: #888;
+    font-size: 1rem;
+    font-style: inherit;
+    padding: 2rem;
+    margin: auto;
+    border-top: 2px solid black;
+    box-sizing: border-box;
+}
+
+.text-input-right-container-title {
+    margin: 1rem 0rem;
+}
+
+
+
+.song-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #ccc;
+}
+
+.song-item:last-child {
+    border-bottom: none;
+}
+
+.song-title {
+    font-weight: bold;
+}
+
+.song-artist {
+    color: #666;
+}
+
+.text-input-generate-button {
+    margin-top: 1rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: #000;
+    color: #fff;
+    border: 2px solid #000;
+    border-radius: 0px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.text-input-generate-button:hover:not(:disabled) {
+    background-color: #333;
+}
+
+.text-input-generate-button:disabled {
+    background-color: #888;
+    border-color: #888;
+    cursor: not-allowed;
+}
+
+.text-input-text-area:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.features-container {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 2px solid black;
+    text-align: left;
+}
+
+.features-container h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.5rem;
+}
+
+.features-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.feature-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.feature-value {
+    font-size: 0.95rem;
+    color: #000;
+}

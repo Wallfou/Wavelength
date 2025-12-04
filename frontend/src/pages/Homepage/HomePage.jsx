@@ -2,7 +2,7 @@ import "./HomePage.css";
 import React, {useEffect, useRef} from "react";
 import { assets } from "../../assets/assets";
 
-const HomePage = () => {
+const HomePage = ({ navigate }) => {
   const titleRef = useRef(null);
   useEffect(() => {
     let ticking = false;
@@ -62,7 +62,7 @@ const HomePage = () => {
         </div>
       </div>
       <div className="convert-container">
-          <button className="convert-section" id="section1" style={{ '--hover-bg': `url(${assets.home_buttons_background})`, '--hover-bg-pos': 'left center' }}>
+          <button type="button" className="convert-section" id="section1" style={{ '--hover-bg': `url(${assets.home_buttons_background})`, '--hover-bg-pos': 'left center' }} onClick={() => navigate('/text-input')}>
             <h2>Text Input</h2>
             <p>Describe your mood in words and watch AI craft the perfect soundtrack for your moment.</p>
           </button>
