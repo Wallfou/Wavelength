@@ -3,9 +3,28 @@ To-Do
 
 - [ ]  Set up React frontend with input components
 - [ ]  Create backend with Express
-- [ ]  Integrate OpenAI/Claude API for text analysis
-- [ ]  Integrate Spotify API (search + audio features)
+- [ ]  Integrate groq for text analysis
+- [ ]  Integrate spotify api and establish track recommendation algorithm
 - [ ]  Basic text-to-playlist flow working
+
+Current recommendation algo
+1. Feature matching: 40% score
+Energy (35% weight) most important for vibe
+Valence (30% weight) - happy vs sad
+Acousticness (20% weight) - acoustic vs electronic
+Tempo (15% weight) - bpm matching
+
+2. Popularity (30% of score)
+prefers popular tracks
+
+3. Danceability (10% of score)
+rewards when energy is high (>60%)
+
+4. Base diversity socre (20% of score)
+Ensures variety in recommendations
+
+5. Different artists
+Limits each artist to max 2 songs in final playlist
 
 ### **Week 3-4: Image Processing**
 

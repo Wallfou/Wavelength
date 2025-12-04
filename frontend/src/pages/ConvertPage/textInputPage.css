@@ -93,7 +93,7 @@
 .text-input-right-container-generated-list {
     width: 100%;
     min-height: 200px;
-    max-height: 500px;
+    max-height: 1200px;
     overflow-y: auto;
     background-color: #f3f2ee;
 }
