@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import "./textInputPage.css";
 
-const API_URL = 'http://localhost:3001';
+const API_URL = 'http://127.0.0.1:3001';
 
 const TextInputPage = () => {
   const [prompt, setPrompt] = useState('');
@@ -119,7 +119,7 @@ const TextInputPage = () => {
             ) : generatedSongs.length === 0 ? (
               <p className='empty-list-placeholder'>
                 {features 
-                  ? 'Spotify integration coming soon! Features extracted above.'
+                  ? 'No spotify integration yet'
                   : 'Your generated songs will appear here...'}
               </p>
             ) : (

@@ -16,8 +16,8 @@ app.use(express.json());
 app.use('/api', playlistRoutes);
 
 // starting server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '127.0.0.1', () => {
+  console.log(`Server running on http://127.0.0.1:${PORT}`);
   console.log(`Groq API: ${process.env.GROQ_API_KEY ? 'configured' : 'missing'}`);
-  console.log(`Spotify API: ${process.env.SPOTIFY_CLIENT_ID ? 'configered' : 'missing'}`);
+  console.log(`Spotify API: ${process.env.SPOTIFY_CLIENT_ID ? 'configured' : 'missing'}`);
 });
