@@ -1,11 +1,9 @@
 import { extractMusicFeatures } from '../services/groqService.js';
-import { searchTracks, getRecommendations } from '../services/spotifyService.js';
-
+import { searchTracks } from '../services/spotifyService.js';
 
 /**
- * Generates a playlist based on user text input by
+ * generates a playlist based on user text input by
  * extracting musical characteristics with groq and then searching spotify
- * for matching songs, should be around 50 songs
  */
 export async function generatePlaylist(req, res) {
   try {
@@ -17,21 +15,19 @@ export async function generatePlaylist(req, res) {
       });
     }
 
-    // extracting musical features from the prompt using groq
-    console.log('extracing features for:', prompt);
+    console.log('extracting features for:', prompt);
     const features = await extractMusicFeatures(prompt);
     console.log('extracted features:', features);
 
-    // fetching playlist from spotify using features
     let playlist = [];
     if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
       try {
-        playlist = await getRecommendations(features);
+        playlist = await searchTracks(features);
       } catch (spotifyError) {
         console.warn('spotify api error:', spotifyError.message);
       }
     } else {
-      console.log('spotify credentials failed');
+      console.log('spotify credentials not configured');
     }
 
     return res.json({
@@ -40,7 +36,7 @@ export async function generatePlaylist(req, res) {
       playlist,
       message: playlist.length > 0 
         ? `generated ${playlist.length} tracks based on your description`
-        : 'features extracted. spotify api credentials failed.',
+        : 'features extracted but spotify search failed',
     });
   } catch (error) {
     console.error('error generating playlist:', error);

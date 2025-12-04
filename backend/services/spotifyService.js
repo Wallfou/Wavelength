@@ -8,6 +8,59 @@ const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 let accessToken = null;
 let tokenExpiry = null;
 
+// valid spotify genres for search query normalization
+const VALID_GENRES = new Set([
+  'acoustic', 'ambient', 'chill', 'classical', 'country', 'dance', 'disco',
+  'electronic', 'folk', 'funk', 'hip-hop', 'house', 'indie', 'indie-pop',
+  'jazz', 'k-pop', 'latin', 'metal', 'pop', 'punk', 'r-n-b', 'reggae',
+  'rock', 'soul', 'techno', 'trance'
+]);
+
+// maps AI output genres to simpler search terms for searching
+const GENRE_MAPPINGS = {
+  'lo-fi': 'chill',
+  'lofi': 'chill',
+  'bedroom-pop': 'indie-pop',
+  'bedroom': 'indie',
+  'trap': 'hip-hop',
+  'rap': 'hip-hop',
+  'r&b': 'r-n-b',
+  'rnb': 'r-n-b',
+  'edm': 'electronic',
+  'synthwave': 'electronic',
+  'chillwave': 'chill',
+  'dream-pop': 'indie-pop',
+  'shoegaze': 'indie',
+  'post-punk': 'punk',
+  'alt-rock': 'rock',
+  'alternative': 'rock',
+};
+
+/**
+ * normalizes genre string from AI output for better search results
+ */
+function normalizeGenre(genre) {
+  const normalized = genre.toLowerCase().trim().replace(/\s+/g, '-');
+  
+  if (VALID_GENRES.has(normalized)) {
+    return normalized;
+  }
+  
+  if (GENRE_MAPPINGS[normalized]) {
+    return GENRE_MAPPINGS[normalized];
+  }
+  
+  // try partial match
+  const parts = normalized.split('-');
+  for (const p of parts) {
+    if (VALID_GENRES.has(p)) {
+      return p;
+    }
+  }
+  
+  return null;
+}
+
 /**
  * Gets spotify access token using client credential flow
  * @returns {Promise<string>} access token
@@ -16,11 +69,14 @@ async function getAccessToken() {
   if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
     return accessToken;
   }
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  
+  const clientId = process.env.SPOTIFY_CLIENT_ID?.trim();
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET?.trim();
+  
   if (!clientId || !clientSecret) {
-    throw new Error('spotify cred not configuered ');
+    throw new Error('Spotify credentials not configured');
   }
+  
   const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   const response = await fetch(SPOTIFY_TOKEN_URL, {
     method: 'POST',
@@ -31,32 +87,53 @@ async function getAccessToken() {
     body: 'grant_type=client_credentials',
   });
 
+  const responseText = await response.text();
+  
   if (!response.ok) {
-    throw new Error('failed to get spotify access token');
+    console.error(`Spotify token error (${response.status}):`, responseText);
+    let errorMessage = `HTTP ${response.status}`;
+    try {
+      const errorData = JSON.parse(responseText);
+      errorMessage = errorData.error_description || errorData.error || errorMessage;
+    } catch {
+      // Response wasn't JSON
+    }
+    throw new Error(`Failed to get Spotify token: ${errorMessage}`);
   }
 
-  const data = await response.json();
+  const data = JSON.parse(responseText);
   accessToken = data.access_token;
-  tokenExpiry = Date.now() + (data.expires_in - 600) * 1000;
+  tokenExpiry = Date.now() + (data.expires_in - 300) * 1000;
   return accessToken;
 }
 
 /**
- * Seraches for spotify tracks based on extracted musical features if recommendation fails
- * @param {Object} features - from groq
- * @returns {Promise<Array>} array of music tracks
+ * searches spotify for tracks based on extracted musical features
+ * @param {Object} features - extracted features from groq
+ * @returns {Promise<Array>} array of track objects
  */
 export async function searchTracks(features) {
   const token = await getAccessToken();
   const searchTerms = [];
   
-  if (features.genres && features.genres.length > 0) {
-    searchTerms.push(`genre:${features.genres[0]}`);
-  }
   if (features.keywords && features.keywords.length > 0) {
-    searchTerms.push(...features.keywords.slice(0, 2));
+    searchTerms.push(...features.keywords.slice(0, 3));
   }
-  const query = searchTerms.join(' ') || features.mood?.[0] || 'music';
+  
+  if (features.mood && features.mood.length > 0) {
+    searchTerms.push(features.mood[0]);
+  }
+  
+  if (features.genres && features.genres.length > 0) {
+    const normalizedGenre = normalizeGenre(features.genres[0]);
+    if (normalizedGenre) {
+      searchTerms.push(normalizedGenre);
+    }
+  }
+  
+  const query = searchTerms.slice(0, 4).join(' ') || 'chill vibes';
+  console.log('searching spotify with query:', query);
+  
   const response = await fetch(
     `${SPOTIFY_API_BASE}/search?q=${encodeURIComponent(query)}&type=track&limit=20`,
     {
@@ -66,11 +143,22 @@ export async function searchTracks(features) {
     }
   );
 
+  const responseText = await response.text();
+  
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error?.message || 'failed to search Spotify');
+    console.error(`Spotify search error (${response.status}):`, responseText);
+    let errorMessage = 'Failed to search Spotify';
+    try {
+      const errorData = JSON.parse(responseText);
+      errorMessage = errorData.error?.message || errorMessage;
+    } catch {
+      // Response wasn't JSON
+    }
+    throw new Error(errorMessage);
   }
-  const data = await response.json();
+  
+  const data = JSON.parse(responseText);
+  console.log(`found ${data.tracks.items.length} tracks`);
   
   const tracks = data.tracks.items.map(track => ({
     id: track.id,
@@ -82,61 +170,6 @@ export async function searchTracks(features) {
     spotifyUrl: track.external_urls.spotify,
     duration: track.duration_ms,
   }));
-  return tracks;
-}
-
-/**
- * Gets track recs based on extracted audio features
- * @param {Object} features - from Groq
- * @returns {Promise<Array>} array of music track recs
- */
-export async function getRecommendations(features) {
-  const token = await getAccessToken();
-  const params = new URLSearchParams({
-    limit: 20,
-    target_energy: features.energy || 0.5,
-    target_valence: features.valence || 0.5,
-    target_acousticness: features.acousticness || 0.5,
-    target_instrumentalness: features.instrumentalness || 0.5,
-  });
-
-  if (features.tempo_range && features.tempo_range.length === 2) {
-    params.append('min_tempo', features.tempo_range[0]);
-    params.append('max_tempo', features.tempo_range[1]);
-  }
-  if (features.genres && features.genres.length > 0) {
-    const genreSeeds = features.genres.slice(0, 3).join(',');
-    params.append('seed_genres', genreSeeds);
-  } else {
-    params.append('seed_genres', 'pop');
-  }
-
-  const response = await fetch(
-    `${SPOTIFY_API_BASE}/recommendations?${params.toString()}`,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.warn('recommendation from spotify failed, searching spotify w keywords:', errorData.error?.message);
-    return searchTracks(features);
-  }
-
-  const data = await response.json();
-  const tracks = data.tracks.map(track => ({
-    id: track.id,
-    title: track.name,
-    artist: track.artists.map(a => a.name).join(', '),
-    album: track.album.name,
-    albumArt: track.album.images[0]?.url,
-    previewUrl: track.preview_url,
-    spotifyUrl: track.external_urls.spotify,
-    duration: track.duration_ms,
-  }));
-
+  
   return tracks;
 }
